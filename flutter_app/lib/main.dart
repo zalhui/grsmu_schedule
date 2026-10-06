@@ -324,13 +324,11 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     if (mounted) setState(() {});
   }
 
-  bool past(Lesson x) {
+  bool dateIsBeforeToday(Lesson x) {
     try {
-      final d = DateFormat('dd.MM.yyyy').parse(x.date), now = DateTime.now();
-      if (DateUtils.dateOnly(d).isBefore(DateUtils.dateOnly(now))) return true;
-      final end = x.time.split('-').last;
-      final t = DateFormat('dd.MM.yyyy HH:mm').parse('${x.date} $end');
-      return t.isBefore(now);
+      final date = DateFormat('dd.MM.yyyy').parse(x.date);
+      return DateUtils.dateOnly(date)
+          .isBefore(DateUtils.dateOnly(DateTime.now()));
     } catch (_) {
       return false;
     }
@@ -341,7 +339,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     final items = selected == null ? <Lesson>[] : (saved[selected] ?? []);
     final by = <String, List<Lesson>>{};
     for (final x in items) {
-      if (!past(x)) by.putIfAbsent(x.date, () => []).add(x);
+      // Keep every lesson for today so completed classes remain visible.
+      if (!dateIsBeforeToday(x)) by.putIfAbsent(x.date, () => []).add(x);
     }
     final days = by.entries.toList()
       ..sort((a, b) => _date(a.key).compareTo(_date(b.key)));
@@ -805,11 +804,14 @@ class DayPage extends StatelessWidget {
         for (final x in items) _lesson(x),
       ]);
   Widget _lesson(Lesson x) {
+    final isFinished = _finished(x);
     final times = x.time.split('-');
     final start = times.isNotEmpty ? times.first.trim() : x.time;
     final end = times.length > 1 ? times.last.trim() : '';
     final subject = x.type.isEmpty ? x.subject : '${x.subject} (${x.type})';
-    return Padding(
+    return Opacity(
+        opacity: isFinished ? 0.42 : 1,
+        child: Padding(
         padding: const EdgeInsets.only(top: 12),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           SizedBox(
@@ -870,7 +872,20 @@ class DayPage extends StatelessWidget {
                                               fontSize: 14,
                                               color: Colors.black54)))),
                           ]))))
-        ]));
+        ])));
+  }
+
+  bool _finished(Lesson lesson) {
+    try {
+      final date = DateFormat('dd.MM.yyyy').parse(lesson.date);
+      final end = lesson.time.split('-').last.trim();
+      final endTime = DateFormat('dd.MM.yyyy HH:mm')
+          .parse('${lesson.date} $end');
+      return DateUtils.isSameDay(date, DateTime.now()) &&
+          endTime.isBefore(DateTime.now());
+    } catch (_) {
+      return false;
+    }
   }
 }
 
