@@ -809,70 +809,78 @@ class DayPage extends StatelessWidget {
     final start = times.isNotEmpty ? times.first.trim() : x.time;
     final end = times.length > 1 ? times.last.trim() : '';
     final subject = x.type.isEmpty ? x.subject : '${x.subject} (${x.type})';
+    final time = end.isEmpty ? start : '$start - $end';
     return Opacity(
         opacity: isFinished ? 0.42 : 1,
         child: Padding(
-        padding: const EdgeInsets.only(top: 12),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          SizedBox(
-              width: 70,
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(start, style: const TextStyle(fontSize: 17)),
-                    if (end.isNotEmpty)
-                      Text(end, style: const TextStyle(fontSize: 17))
-                  ])),
-          Container(
-              width: 8,
-              height: 86,
-              margin: const EdgeInsets.only(right: 10),
-              decoration: BoxDecoration(
-                  color: typeColor(x.type),
-                  borderRadius: BorderRadius.circular(5))),
-          Expanded(
-              child: Card(
-                  margin: EdgeInsets.zero,
-                  color: const Color(0xffe2e9ed),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(22)),
-                  child: Padding(
-                      padding: const EdgeInsets.all(14),
-                      child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                                child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                  Text(subject,
-                                      softWrap: true,
-                                      style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold)),
-                                  if (x.auditory.isNotEmpty)
-                                    Padding(
-                                        padding: const EdgeInsets.only(top: 8),
-                                        child: Text(x.auditory,
-                                            softWrap: true,
-                                            style: const TextStyle(
-                                                fontSize: 14,
-                                                color: Colors.black54)))
-                                ])),
-                            if (x.teacher.isNotEmpty)
-                              SizedBox(
-                                  width: 112,
-                                  child: Padding(
-                                      padding: const EdgeInsets.only(left: 8),
-                                      child: Text(x.teacher,
-                                          softWrap: true,
-                                          textAlign: TextAlign.right,
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.black54)))),
-                          ]))))
-        ])));
+            padding: const EdgeInsets.only(top: 12),
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(time, style: const TextStyle(fontSize: 17)),
+                  const SizedBox(height: 6),
+                  ClipRRect(
+                      borderRadius: BorderRadius.circular(22),
+                      child: ColoredBox(
+                          color: const Color(0xffe2e9ed),
+                          child: IntrinsicHeight(
+                              child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Container(width: 8, color: typeColor(x.type)),
+                                Expanded(
+                                    child: Padding(
+                                        padding: const EdgeInsets.all(14),
+                                        child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(subject,
+                                                  softWrap: true,
+                                                  style: const TextStyle(
+                                                      fontSize: 18,
+                                                      fontWeight:
+                                                          FontWeight.bold)),
+                                              const SizedBox(height: 8),
+                                              Row(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Expanded(
+                                                        child: x.auditory
+                                                                .isNotEmpty
+                                                            ? Text(x.auditory,
+                                                                softWrap: true,
+                                                                style: const TextStyle(
+                                                                    fontSize:
+                                                                        14,
+                                                                    color: Colors
+                                                                        .black54))
+                                                            : const SizedBox()),
+                                                    if (x.teacher.isNotEmpty)
+                                                      SizedBox(
+                                                          width: 112,
+                                                          child: Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .only(
+                                                                      left: 8),
+                                                              child: Text(
+                                                                  x.teacher,
+                                                                  softWrap:
+                                                                      true,
+                                                                  textAlign:
+                                                                      TextAlign
+                                                                          .right,
+                                                                  style: const TextStyle(
+                                                                      fontSize:
+                                                                          14,
+                                                                      color: Colors
+                                                                          .black54)))),
+                                                  ])
+                                            ])))
+                              ]))))
+                ])));
   }
 
   bool _finished(Lesson lesson) {
